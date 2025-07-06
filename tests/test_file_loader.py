@@ -67,3 +67,44 @@ def test_load_docx():
 
     # 清理
     os.remove('test.docx')
+
+
+def test_load_excel():
+    # 创建临时Excel文件
+    import pandas as pd
+
+    # 创建测试数据
+    data = {
+        'Name': ['Alice', 'Bob', 'Charlie'],
+        'Age': [25, 30, 35],
+        'Salary': [5000, 6000, 7000]
+    }
+    df = pd.DataFrame(data)
+
+    # 创建第二个工作表
+    data2 = {
+        'Product': ['Apple', 'Banana'],
+        'Price': [2.5, 1.8]
+    }
+    df2 = pd.DataFrame(data2)
+
+    # 写入Excel文件
+    with pd.ExcelWriter('test.xlsx') as writer:
+        df.to_excel(writer, sheet_name='Employees', index=False)
+        df2.to_excel(writer, sheet_name='Products', index=False)
+
+    result = load_file('test.xlsx')
+
+    assert result['type'] == 'excel'
+    assert result['status'] == 'success'
+    assert 'Employees' in result['content']
+    assert 'Alice' in result['content']
+    assert 'Apple' in result['content']
+
+    # 验证元数据
+    assert 'sheet_names' in result['metadata']
+    assert len(result['metadata']['sheet_names']) == 2
+    assert 'Employees' in result['metadata']['sheet_names']
+
+    # 清理
+    os.remove('test.xlsx')

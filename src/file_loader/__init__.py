@@ -2,32 +2,19 @@ from typing import Dict, Any
 from .txt_loader import load_txt
 from .pdf_loader import load_pdf
 from .docx_loader import load_docx
+from .excel_loader import load_excel
 
 def load_file(file_path: str) -> Dict[str, Any]:
     if file_path.endswith('.txt'):
-        content = load_txt(file_path)
-        return {
-            'content': content,
-            'type': 'txt',
-            'size': len(content),
-            'status': 'success' if content else 'error'
-        }
+        return load_txt(file_path)
     elif file_path.endswith('.pdf'):
-        content = load_pdf(file_path)
-        return {
-            'content': content,
-            'type': 'pdf',
-            'size': len(content),
-            'status': 'success' if content else 'error'
-        }
+        return load_pdf(file_path)
     elif file_path.endswith('.docx'):
-        content = load_docx(file_path)
-        return {
-            'content': content,
-            'type': 'docx',
-            'size': len(content),
-            'status': 'success' if content else 'error'
-        }
+        return load_docx(file_path)
+    elif file_path.endswith(('.xlsx', '.xls')):
+        return load_excel(file_path)
+    elif file_path.endswith('.pptx'):
+        return load_ppt(file_path)
     else:
         return {
             'content': f"Unsupported file type: {file_path}",
