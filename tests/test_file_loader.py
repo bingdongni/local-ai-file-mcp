@@ -108,3 +108,63 @@ def test_load_excel():
 
     # 清理
     os.remove('test.xlsx')
+
+
+def test_load_ppt():
+    # 创建临时PPT文件
+    from pptx import Presentation
+
+    prs = Presentation()
+
+    # 标题幻灯片
+    slide_layout = prs.slide_layouts[0]
+    slide = prs.slides.add_slide(slide_layout)
+    title = slide.shapes.title
+    subtitle = slide.placeholders[1]
+    title.text = "测试演示文稿"
+    subtitle.text = "这是一个测试副标题"
+
+    # 内容幻灯片
+    slide_layout = prs.slide_layouts[1]
+    slide = prs.slides.add_slide(slide_layout)
+    title = slide.shapes.title
+    body = slide.shapes.placeholders[1]
+    title.text = "第一部分"
+    tf = body.text_frame
+    tf.text = "这是第一点"
+    p = tf.add_paragraph()
+    p.text = "这是第二点"
+
+    # 添加表格
+    slide_layout = prs.slide_layouts[5]
+    slide = prs.slides.add_slide(slide_layout)
+    title = slide.shapes.title
+    title.text = "表格示例"
+    rows = 2
+    cols = 2
+    left = top = 1
+    width = 8
+    height = 1
+    table = slide.shapes.add_table(rows, cols, left, top, width, height).table
+    table.cell(0, 0).text = "姓名"
+    table.cell(0, 1).text = "年龄"
+    table.cell(1, 0).text = "张三"
+    table.cell(1, 1).text = "25"
+
+    prs.save('test.pptx')
+
+    result = load_file('test.pptx')
+
+    assert result['type'] == 'ppt'
+    assert result['status'] == 'success'
+    assert '测试演示文稿' in result['content']
+    assert '张三' in result['content']
+    assert '25' in result['content']
+
+    # 验证元数据
+    assert 'title' in result['metadata']
+    assert 'num_slides' in result['metadata']
+    assert result['metadata']['num_slides'] == 3
+
+    # 清理
+    os.remove('test.pptx')
